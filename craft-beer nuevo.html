@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Craft and Beer — Ventas On-line</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --malt-black:#1b1512;
+  --malt-black-2:#241c17;
+  --barrel:#2e241d;
+  --amber:#c9791f;
+  --amber-light:#e2a24b;
+  --hop:#7a8f4a;
+  --hop-dark:#5c6d38;
+  --cream:#f4ecdb;
+  --cream-dim:#c9bfa9;
+  --line: rgba(244,236,219,0.14);
+  --danger:#b5493a;
+  --radius: 3px;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+  }
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top: env(safe-area-inset-top, 0px);}
+body{
+  margin:0;
+  background:var(--malt-black);
+  color:var(--cream);
+  font-family:'Work Sans', sans-serif;
+  min-height:100%;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:'Fraunces', serif; margin:0; font-weight:600; letter-spacing:.2px;}
+a{color:inherit;}
+button{font-family:inherit;}
+::-webkit-scrollbar{height:8px;width:8px;}
+::-webkit-scrollbar-thumb{background:#463829;border-radius:4px;}
+
+.app{max-width:1180px;margin:0 auto;padding:0 20px 60px;}
+header.top{
+  border-bottom:1px solid var(--line);
+  padding: max(18px, env(safe-area-inset-top)) 0 16px;
+  margin-bottom:26px;
+  display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+}
+.brand{display:flex; align-items:baseline; gap:10px;}
+.brand .mark{
+  font-family:'Fraunces', serif; font-size:1.65rem; font-weight:700; color:var(--amber-light);
+  line-height:1;
+}
+.brand .tag{font-size:.72rem; color:var(--cream-dim); letter-spacing:.03em;}
+.session{display:flex; align-items:center; gap:12px; font-size:.85rem; color:var(--cream-dim);}
+.session strong{color:var(--cream); font-weight:600;}
+.btn{
+  border:1px solid var(--line); background:transparent; color:var(--cream);
+  padding:8px 16px; border-radius:var(--radius); cursor:pointer; font-size:.85rem;
+  transition: border-color .15s ease, background .15s ease;
+}
+.btn:hover{border-color:var(--amber);}
+.btn.primary{background:var(--amber); border-color:var(--amber); color:#1b1512; font-weight:600;}
+.btn.primary:hover{background:var(--amber-light);}
+.btn.ghost{border-color:transparent; color:var(--cream-dim);}
+.btn.ghost:hover{color:var(--cream);}
+.btn.danger{border-color:var(--danger); color:#f0b3ab;}
+.btn.danger:hover{background:var(--danger); color:var(--cream);}
+.btn:disabled{opacity:.4; cursor:not-allowed;}
+.btn.small{padding:5px 11px; font-size:.76rem;}
+nav.tabs{
+  display:flex; gap:4px; flex-wrap:wrap; margin-bottom:28px;
+  border-bottom:1px solid var(--line);
+}
+nav.tabs button{
+  background:none; border:none; color:var(--cream-dim); padding:10px 14px;
+  font-size:.86rem; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px;
+}
+nav.tabs button:hover{color:var(--cream);}
+nav.tabs button.active{color:var(--amber-light); border-bottom-color:var(--amber);}
+
+.view{display:none;}
+.view.active{display:block; animation:fade .25s ease;}
+@keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+
+.panel{
+  background:var(--malt-black-2); border:1px solid var(--line); border-radius:var(--radius);
+  padding:22px; margin-bottom:20px;
+}
+.panel h2{font-size:1.15rem; margin-bottom:14px; color:var(--cream);}
+.panel h3{font-size:.95rem; color:var(--amber-light); margin-bottom:10px;}
+.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+@media (max-width:720px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+
+label{display:block; font-size:.75rem; color:var(--cream-dim); margin-bottom:5px; margin-top:12px;}
+label:first-child{margin-top:0;}
+input, select, textarea{
+  width:100%; background:var(--malt-black); border:1px solid var(--line); color:var(--cream);
+  padding:9px 10px; border-radius:var(--radius); font-size:.88rem; font-family:inherit;
+}
+input:focus, select:focus, textarea:focus{outline:2px solid var(--amber); outline-offset:1px; border-color:var(--amber);}
+.field-error{color:#f0b3ab; font-size:.72rem; margin-top:4px;}
+.hint{font-size:.72rem; color:var(--cream-dim); margin-top:5px;}
+.catalog-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:16px;}
+.beer-card{
+  border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--barrel);
+  display:flex; flex-direction:column;
+}
+.beer-swatch{
+  height:86px; display:flex; align-items:flex-end; padding:10px;
+  background: linear-gradient(160deg, var(--swatch,#c9791f) 0%, #2e241d 130%);
+}
+.beer-swatch .style-tag{font-size:.65rem; letter-spacing:.03em; background:rgba(0,0,0,.35); padding:3px 7px; border-radius:2px;}
+.beer-body{padding:12px 14px 14px; display:flex; flex-direction:column; gap:6px; flex:1;}
+.beer-body h4{font-size:1rem;}
+.beer-meta{font-size:.74rem; color:var(--cream-dim);}
+.beer-price{font-family:'Fraunces',serif; font-size:1.15rem; color:var(--amber-light); margin-top:4px;}
+.stock-low{color:#f0b3ab;}
+.stock-out{color:#7a6f5c;}
+.qty-row{display:flex; align-items:center; gap:8px; margin-top:8px;}
+.qty-row input{width:56px; text-align:center;}
+.cart-line{display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--line); font-size:.86rem; gap:10px;}
+.cart-line:last-child{border-bottom:none;}
+.cart-total{display:flex; justify-content:space-between; padding-top:12px; margin-top:6px; border-top:1px solid var(--line); font-family:'Fraunces',serif; font-size:1.2rem;}
+
+table{width:100%; border-collapse:collapse; font-size:.83rem;}
+th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--line);}
+th{color:var(--cream-dim); font-weight:500; font-size:.72rem; letter-spacing:.03em;}
+tr:hover td{background:rgba(244,236,219,0.02);}
+
+.badge{display:inline-block; padding:2px 8px; border-radius:10px; font-size:.68rem; font-weight:600;}
+.badge.pend{background:#4a3c1e; color:#e2c168;}
+.badge.paid{background:#31432a; color:#a9d18c;}
+.badge.disp{background:#1e3a4a; color:#8fc8e2;}
+.badge.entregado{background:#2a3f2b; color:#9fd39f;}
+.badge.anulado{background:#4a1f1f; color:#e2a9a9;}
+
+.empty{color:var(--cream-dim); font-size:.85rem; padding:18px 0; text-align:center;}
+
+.receipt{
+  border:1px dashed var(--line); background:var(--malt-black); padding:16px; border-radius:var(--radius);
+  font-size:.82rem; max-width:360px;
+}
+.receipt h4{font-family:'Fraunces',serif; margin-bottom:2px;}
+.receipt .rline{display:flex; justify-content:space-between; padding:3px 0;}
+.receipt hr{border:none; border-top:1px dashed var(--line); margin:8px 0;}
+
+.toast-wrap{position:fixed; bottom:calc(20px + env(safe-area-inset-bottom,0px)); right:20px; display:flex; flex-direction:column; gap:8px; z-index:50;}
+.toast{background:#2a2119; border:1px solid var(--amber); color:var(--cream); padding:10px 16px; border-radius:var(--radius); font-size:.83rem; box-shadow:0 4px 18px rgba(0,0,0,.4); max-width:300px;}
+
+.role-pill{font-size:.68rem; padding:2px 8px; border:1px solid var(--line); border-radius:10px; color:var(--cream-dim);}
+
+.two-col{display:flex; gap:22px; align-items:flex-start; flex-wrap:wrap;}
+.two-col > div{flex:1; min-width:280px;}
+
+.small-note{font-size:.72rem; color:var(--cream-dim); line-height:1.5;}
+.divider{height:1px; background:var(--line); margin:18px 0;}
+
+.login-wrap{max-width:400px; margin:60px auto; text-align:center;}
+.login-wrap .mark{font-size:2.2rem; color:var(--amber-light); margin-bottom:4px;}
+.login-wrap p.tag{color:var(--cream-dim); margin-bottom:26px; font-size:.85rem;}
+.login-panel{text-align:left;}
+.role-switch{display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;}
+.role-switch button{flex:1; min-width:80px;}
+
+@media(max-width:600px){
+  .grid-3{grid-template-columns:1fr;}
+  header.top{align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<div id="root"></div>
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+
+const LS_KEY = "craftandbeer_state_v1";
+
+const REGION_COMUNAS = {
+  "Metropolitana": ["Maipú","Ñuñoa","Providencia","San Miguel","Independencia"],
+  "Valparaíso": ["Valparaíso","Viña del Mar","Quilpué"],
+  "Biobío": ["Concepción","Talcahuano","Chiguayante"]
+};
+
+function uid(prefix){ return prefix + "-" + Math.random().toString(36).slice(2,9); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function clp(n){ return "$" + Math.round(n).toLocaleString("es-CL"); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function seedState(){
+  return {
+    products: [
+      {id:"P1", name:"Chasqui Golden Ale", style:"Golden Ale", format:"Botella 330ml", abv:4.8, price:2990, stock:120, swatch:"#d9a441"},
+      {id:"P2", name:"Andina IPA", style:"India Pale Ale", format:"Botella 330ml", abv:6.2, price:3490, stock:80, swatch:"#c9791f"},
+      {id:"P3", name:"Volcán Porter", style:"Porter", format:"Botella 500ml", abv:5.9, price:3990, stock:45, swatch:"#4a3324"},
+      {id:"P4", name:"Niebla Weizen", style:"Hefeweizen", format:"Botella 500ml", abv:5.0, price:3690, stock:60, swatch:"#e8c873"},
+      {id:"P5", name:"Cordillera Red Ale", style:"Red Ale", format:"Botella 330ml", abv:5.4, price:3290, stock:8, swatch:"#a5451f"},
+      {id:"P6", name:"Chasqui Golden Ale", style:"Golden Ale", format:"Growler 1L", abv:4.8, price:6990, stock:25, swatch:"#d9a441"},
+      {id:"P7", name:"Andina IPA", style:"India Pale Ale", format:"Growler 1L", abv:6.2, price:7990, stock:0, swatch:"#c9791f"},
+      {id:"P8", name:"Volcán Porter", style:"Porter", format:"Growler 2L", abv:5.9, price:13990, stock:10, swatch:"#4a3324"},
+    ],
+    clients: [
+      {id:"C1", run:"18234567-5", nombre:"Javiera Soto Reyes", direccion:"Los Aromos 234", comuna:"Ñuñoa", provincia:"Santiago", region:"Metropolitana",
+       fnac:"1994-03-12", sexo:"F", email:"javiera.soto@demo.cl", emailVerificado:true, telefono:"+56 9 8123 4455"}
+    ],
+    users: [
+      {id:"U1", username:"admin", password:"admin3604", rol:"Administrador", nombre:"Administrador del sistema"},
+      {id:"U2", username:"cajero", password:"cajero3604", rol:"Cajero Virtual", nombre:"Cajero Virtual — turno web"},
+      {id:"U3", username:"despacho", password:"despacho3604", rol:"Encargado de Despacho", nombre:"Encargado de Bodega y Despacho"},
+      {id:"U4", username:"dueno", password:"dueno3604", rol:"Dueño", nombre:"Dueño de Craft and Beer"}
+    ],
+    orders: [],
+    emailLog: [],
+    session: null, // {type:'client', id} | {type:'user', id}
+    cart: {} // productId -> qty (only meaningful while logged in as client)
+  };
+}
+
+let state = loadState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){ console.warn("No se pudo leer el estado guardado", e); }
+  return seedState();
+}
+function saveState(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+  catch(e){ console.warn("No se pudo guardar el estado", e); }
+}
+
+function toast(msg){
+  const wrap = document.getElementById("toasts");
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.style.opacity="0"; el.style.transition="opacity .3s"; setTimeout(()=>el.remove(),300); }, 3200);
+}
+function looksLikeValidEmail(email){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+}
+function sendSimulatedEmail(to, subject, body){
+  state.emailLog.unshift({id:uid("MAIL"), to, subject, body, ts:new Date().toISOString()});
+  saveState();
+}
+let currentView = "catalogo";
+let currentAuthRole = "cliente"; // for the login screen tab: cliente | staff
+
+function render(){
+  const root = document.getElementById("root");
+  if(!state.session){
+    root.innerHTML = renderLogin();
+    attachLoginHandlers();
+    return;
+  }
+  root.innerHTML = renderApp();
+  attachAppHandlers();
+}
+function renderLogin(){
+  return `
+  <div class="app">
+    <div class="login-wrap">
+      <div class="mark">Craft and Beer</div>
+      <p class="tag">Cervecería artesanal · botellas y growlers · venta on-line</p>
+      <div class="panel login-panel">
+        <div class="role-switch">
+          <button type="button" class="btn ${currentAuthRole==='cliente'?'primary':''}" data-authrole="cliente">Soy cliente</button>
+          <button type="button" class="btn ${currentAuthRole==='staff'?'primary':''}" data-authrole="staff">Soy personal</button>
+        </div>
+        ${currentAuthRole==='cliente' ? renderClientAuth() : renderStaffAuth()}
+      </div>
+      <p class="small-note" style="margin-top:14px;">Cuentas de demostración — personal: admin/admin3604 · cajero/cajero3604 · despacho/despacho3604 · dueno/dueno3604.</p>
+    </div>
+  </div>`;
+}
+
+function renderClientAuth(){
+  return `
+    <h3>Ingreso de clientes</h3>
+    <form id="clientLoginForm">
+      <label>Correo electrónico</label>
+      <input type="email" name="email" required placeholder="tucorreo@dominio.cl">
+      <button class="btn primary" style="margin-top:16px; width:100%;" type="submit">Ingresar</button>
+    </form>
+    <div class="divider"></div>
+    <h3>Registro de nuevo cliente</h3>
+    ${renderClientRegisterForm("registerForm")}
+  `;
+}
+
+function renderClientRegisterForm(formId){
+  const comunasOptions = Object.entries(REGION_COMUNAS).map(([region,comunas])=>
+    `<optgroup label="${region}">${comunas.map(c=>`<option value="${c}|${region}">${c}</option>`).join("")}</optgroup>`
+  ).join("");
+  return `
+  <form id="${formId}">
+    <div class="grid-2">
+      <div><label>RUN</label><input name="run" required placeholder="12345678-9"></div>
+      <div><label>Nombre completo</label><input name="nombre" required></div>
+    </div>
+    <label>Dirección</label>
+    <input name="direccion" required placeholder="Calle y número">
+    <label>Comuna / Región</label>
+    <select name="comunaRegion" required>
+      <option value="">Selecciona comuna</option>
+      ${comunasOptions}
+    </select>
+    <div class="grid-2">
+      <div><label>Fecha de nacimiento</label><input type="date" name="fnac" required></div>
+      <div><label>Sexo</label>
+        <select name="sexo" required><option value="">Selecciona</option><option value="F">Femenino</option><option value="M">Masculino</option><option value="O">Otro</option></select>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div><label>Correo electrónico</label><input type="email" name="email" required placeholder="tucorreo@dominio.cl"></div>
+      <div><label>Teléfono</label><input name="telefono" required placeholder="+56 9 ...">
+      </div>
+    </div>
+    <div id="${formId}Error" class="field-error"></div>
+    <button class="btn primary" style="margin-top:16px; width:100%;" type="submit">Crear cuenta y validar correo</button>
+    <p class="hint">Al registrarte simulamos el envío de un correo de verificación mediante un API de mensajería, tal como exige el sistema.</p>
+  </form>`;
+}
+
+function renderStaffAuth(){
+  return `
+    <h3>Ingreso de personal</h3>
+    <form id="staffLoginForm">
+      <label>Usuario</label>
+      <input name="username" required autocomplete="username">
+      <label>Contraseña</label>
+      <input type="password" name="password" required autocomplete="current-password">
+      <div id="staffLoginError" class="field-error"></div>
+      <button class="btn primary" style="margin-top:16px; width:100%;" type="submit">Ingresar</button>
+    </form>
+  `;
+}
+
+function attachLoginHandlers(){
+  document.querySelectorAll("[data-authrole]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{ currentAuthRole = btn.dataset.authrole; render(); });
+  });
+
+  const clientLoginForm = document.getElementById("clientLoginForm");
+  if(clientLoginForm){
+    clientLoginForm.addEventListener("submit", e=>{
+      e.preventDefault();
+      const email = e.target.email.value.trim().toLowerCase();
+      const client = state.clients.find(c=>c.email.toLowerCase()===email);
+      if(!client){ toast("No encontramos una cuenta con ese correo. Regístrate más abajo."); return; }
+      state.session = {type:"client", id: client.id};
+      saveState();
+      currentView = "catalogo";
+      render();
+      toast("Bienvenida/o, " + client.nombre.split(" ")[0]);
+    });
+  }
+
+  const registerForm = document.getElementById("registerForm");
+  if(registerForm){
+    registerForm.addEventListener("submit", e=>{
+      e.preventDefault();
+      const f = e.target;
+      const errorBox = document.getElementById("registerFormError");
+      errorBox.textContent = "";
+      const email = f.email.value.trim();
+      if(!looksLikeValidEmail(email)){ errorBox.textContent = "Ingresa un correo electrónico válido."; return; }
+      if(state.clients.some(c=>c.email.toLowerCase()===email.toLowerCase())){
+        errorBox.textContent = "Ya existe una cuenta registrada con ese correo."; return;
+      }
+      const [comuna, region] = f.comunaRegion.value.split("|");
+      if(!comuna){ errorBox.textContent = "Selecciona tu comuna."; return; }
+      const client = {
+        id: uid("C"),
+        run: f.run.value.trim(),
+        nombre: f.nombre.value.trim(),
+        direccion: f.direccion.value.trim(),
+        comuna, provincia: comuna, region,
+        fnac: f.fnac.value,
+        sexo: f.sexo.value,
+        email,
+        emailVerificado: true, // simulado: el API de mensajería confirma la existencia del correo
+        telefono: f.telefono.value.trim()
+      };
+      state.clients.push(client);
+      sendSimulatedEmail(email, "Verifica tu correo — Craft and Beer",
+        "Hola " + client.nombre + ", confirmamos que tu correo es válido y tu cuenta ha sido activada.");
+      state.session = {type:"client", id: client.id};
+      saveState();
+      currentView = "catalogo";
+      render();
+      toast("Cuenta creada y correo validado. ¡Salud!");
+    });
+  }
+
+  const staffLoginForm = document.getElementById("staffLoginForm");
+  if(staffLoginForm){
+    staffLoginForm.addEventListener("submit", e=>{
+      e.preventDefault();
+      const u = e.target.username.value.trim();
+      const p = e.target.password.value;
+      const user = state.users.find(x=>x.username===u && x.password===p);
+      const errorBox = document.getElementById("staffLoginError");
+      if(!user){ errorBox.textContent = "Usuario o contraseña incorrectos."; return; }
+      state.session = {type:"user", id:user.id};
+      saveState();
+      currentView = roleHomeView(user.rol);
+      render();
+      toast("Sesión iniciada como " + user.rol);
+    });
+  }
+}
+
+function roleHomeView(rol){
+  if(rol==="Administrador") return "admin-productos";
+  if(rol==="Cajero Virtual") return "cajero";
+  if(rol==="Encargado de Despacho") return "despacho";
+  if(rol==="Dueño") return "reportes";
+  return "catalogo";
+}
+function getCurrentClient(){
+  if(state.session && state.session.type==="client") return state.clients.find(c=>c.id===state.session.id);
+  return null;
+}
+function getCurrentUser(){
+  if(state.session && state.session.type==="user") return state.users.find(u=>u.id===state.session.id);
+  return null;
+}
+
+function renderApp(){
+  const client = getCurrentClient();
+  const user = getCurrentUser();
+  const who = client ? client.nombre : (user ? user.nombre : "");
+  const roleLabel = client ? "Cliente" : (user ? user.rol : "");
+
+  const tabs = buildTabs(client, user);
+  if(!tabs.some(t=>t.key===currentView)) currentView = tabs[0].key;
+
+  return `
+  <div class="app">
+    <header class="top">
+      <div class="brand">
+        <div class="mark">Craft and Beer</div>
+        <div class="tag">Sistema de ventas on-line</div>
+      </div>
+      <div class="session">
+        <span class="role-pill">${roleLabel}</span>
+        <strong>${escapeHtml(who)}</strong>
+        <button class="btn ghost" id="logoutBtn">Cerrar sesión</button>
+      </div>
+    </header>
+    <nav class="tabs">
+      ${tabs.map(t=>`<button data-view="${t.key}" class="${currentView===t.key?'active':''}">${t.label}</button>`).join("")}
+    </nav>
+    <div id="viewHost">${renderView(currentView, client, user)}</div>
+  </div>`;
+}
+
+function buildTabs(client, user){
+  if(client){
+    return [
+      {key:"catalogo", label:"Catálogo"},
+      {key:"carrito", label:"Mi pedido"},
+      {key:"mis-pedidos", label:"Mis compras"},
+      {key:"mi-cuenta", label:"Mi cuenta"},
+    ];
+  }
+  if(user){
+    const t = [];
+    if(user.rol==="Administrador"){
+      t.push({key:"admin-productos", label:"Productos"});
+      t.push({key:"admin-clientes", label:"Clientes"});
+      t.push({key:"admin-usuarios", label:"Usuarios"});
+      t.push({key:"admin-anulaciones", label:"Anular compra"});
+    }
+    if(user.rol==="Cajero Virtual"){
+      t.push({key:"cajero", label:"Caja virtual — Ventas"});
+    }
+    if(user.rol==="Encargado de Despacho"){
+      t.push({key:"despacho", label:"Órdenes de despacho"});
+    }
+    if(user.rol==="Dueño"){
+      t.push({key:"reportes", label:"Reporte de ventas"});
+      t.push({key:"admin-productos", label:"Productos"});
+    }
+    return t;
+  }
+  return [{key:"catalogo", label:"Catálogo"}];
+}
+
+function renderView(view, client, user){
+  switch(view){
+    case "catalogo": return renderCatalogo(client);
+    case "carrito": return renderCarrito(client);
+    case "mis-pedidos": return renderMisPedidos(client);
+    case "mi-cuenta": return renderMiCuenta(client);
+    case "admin-productos": return renderAdminProductos(user);
+    case "admin-clientes": return renderAdminClientes(user);
+    case "admin-usuarios": return renderAdminUsuarios(user);
+    case "admin-anulaciones": return renderAdminAnulaciones(user);
+    case "cajero": return renderCajero(user);
+    case "despacho": return renderDespacho(user);
+    case "reportes": return renderReportes(user);
+    default: return "<div class='panel'>Vista no disponible.</div>";
+  }
+}
+function renderCatalogo(client){
+  const cards = state.products.map(p=>{
+    const inCart = client ? (state.cart[p.id]||0) : 0;
+    const outOfStock = p.stock<=0;
+    return `
+    <div class="beer-card">
+      <div class="beer-swatch" style="--swatch:${p.swatch}"><span class="style-tag">${p.style}</span></div>
+      <div class="beer-body">
+        <h4>${escapeHtml(p.name)}</h4>
+        <div class="beer-meta">${p.format} · ${p.abv}% alc.</div>
+        <div class="beer-meta ${p.stock<=10 && p.stock>0 ? 'stock-low':''} ${outOfStock?'stock-out':''}">
+          ${outOfStock ? "Sin stock disponible" : (p.stock<=10 ? "Últimas " + p.stock + " unidades" : "Disponible")}
+        </div>
+        <div class="beer-price">${clp(p.price)}</div>
+        ${client ? `
+          <div class="qty-row">
+            <button class="btn small" data-qtychg="${p.id}" data-delta="-1" ${outOfStock?"disabled":""}>–</button>
+            <input type="number" min="0" max="${p.stock}" value="${inCart}" data-qtyinput="${p.id}" ${outOfStock?"disabled":""}>
+            <button class="btn small" data-qtychg="${p.id}" data-delta="1" ${outOfStock?"disabled":""}>+</button>
+          </div>
+          <button class="btn primary small" style="margin-top:8px;" data-addcart="${p.id}" ${outOfStock?"disabled":""}>Agregar al pedido</button>
+        ` : `<p class="hint">Inicia sesión como cliente para comprar.</p>`}
+      </div>
+    </div>`;
+  }).join("");
+
+  return `
+  <div class="panel">
+    <h2>Catálogo — botellas y growlers</h2>
+    <p class="small-note" style="margin-bottom:16px;">Producción limitada de nuestro local en Maipú. Todo lo que ves aquí es lo mismo que servimos en la cervecería — ahora también con despacho a domicilio.</p>
+    <div class="catalog-grid">${cards}</div>
+  </div>`;
+}
+function cartLines(){
+  return Object.entries(state.cart).filter(([,qty])=>qty>0).map(([pid,qty])=>{
+    const p = state.products.find(x=>x.id===pid);
+    return {product:p, qty};
+  }).filter(l=>l.product);
+}
+function cartTotal(){
+  return cartLines().reduce((sum,l)=>sum + l.product.price*l.qty, 0);
+}
+
+function renderCarrito(client){
+  if(!client) return "<div class='panel'>Debes iniciar sesión como cliente.</div>";
+  const lines = cartLines();
+  const total = cartTotal();
+
+  return `
+  <div class="two-col">
+    <div class="panel">
+      <h2>Mi pedido</h2>
+      ${lines.length===0 ? "<div class='empty'>Aún no agregas cervezas a tu pedido.</div>" : `
+        ${lines.map(l=>`
+          <div class="cart-line">
+            <span>${escapeHtml(l.product.name)} · ${l.product.format} <br><span class="small-note">${l.qty} × ${clp(l.product.price)}</span></span>
+            <span>
+              ${clp(l.product.price*l.qty)}
+              <button class="btn small ghost" data-removecart="${l.product.id}">Quitar</button>
+            </span>
+          </div>
+        `).join("")}
+        <div class="cart-total"><span>Total</span><span>${clp(total)}</span></div>
+      `}
+    </div>
+    <div class="panel">
+      <h2>Pago y despacho</h2>
+      ${lines.length===0 ? "<p class='small-note'>Agrega productos para continuar al pago.</p>" : `
+        <label>Dirección de despacho</label>
+        <input id="checkoutAddr" value="${escapeHtml(client.direccion + ', ' + client.comuna)}">
+        <p class="hint">El despacho gratuito aplica dentro de un radio de 3 km desde nuestro local en Maipú; fuera de ese radio, un chofer confirmará contigo un costo adicional.</p>
+        <label>Plataforma de pago externa</label>
+        <select id="checkoutPayment">
+          <option value="Servipag">Servipag</option>
+          <option value="Depósito bancario">Depósito bancario</option>
+        </select>
+        <p class="hint">El pago se procesa fuera del sitio; una vez confirmado por la plataforma, tu pedido pasa a preparación.</p>
+        <button class="btn primary" id="payBtn" style="margin-top:16px; width:100%;">Pagar ${clp(total)}</button>
+      `}
+    </div>
+  </div>`;
+}
+
+function attachCarritoHandlers(){
+  const payBtn = document.getElementById("payBtn");
+  if(payBtn){
+    payBtn.addEventListener("click", ()=>{
+      const client = getCurrentClient();
+      const lines = cartLines();
+      if(lines.length===0) return;
+      for(const l of lines){
+        if(l.qty > l.product.stock){
+          toast("Stock insuficiente para " + l.product.name);
+          return;
+        }
+      }
+      const platform = document.getElementById("checkoutPayment").value;
+      const address = document.getElementById("checkoutAddr").value;
+      const order = createOrder(client, lines, platform, address);
+      lines.forEach(l=>{ l.product.stock -= l.qty; });
+      state.cart = {};
+      saveState();
+      currentView = "mis-pedidos";
+      render();
+      toast("Pago confirmado por " + platform + ". Boleta N° " + order.boleta + " enviada a tu correo.");
+    });
+  }
+}
+
+function createOrder(client, lines, platform, address){
+  const cajero = state.users.find(u=>u.rol==="Cajero Virtual") || state.users[0];
+  const order = {
+    id: uid("PED"),
+    boleta: "B-" + (1000 + state.orders.length + 1),
+    clienteId: client.id,
+    items: lines.map(l=>({productId:l.product.id, nombre:l.product.name, formato:l.product.format, cantidad:l.qty, precioUnit:l.product.price})),
+    total: lines.reduce((s,l)=>s+l.product.price*l.qty,0),
+    plataformaPago: platform,
+    direccionDespacho: address,
+    fecha: new Date().toISOString(),
+    estado: "Pagado", // Pendiente -> Pagado -> En despacho -> Entregado | Anulado
+    cajeroId: cajero.id,
+    motivoAnulacion: null
+  };
+  state.orders.unshift(order);
+  sendSimulatedEmail(client.email, "Boleta digital " + order.boleta + " — Craft and Beer", buildReceiptText(order, client));
+  return order;
+}
+
+function buildReceiptText(order, client){
+  const lines = order.items.map(i=>`${i.cantidad} x ${i.nombre} (${i.formato}) — ${clp(i.precioUnit*i.cantidad)}`).join("\n");
+  return `Boleta digital ${order.boleta}\nCliente: ${client.nombre}\n${lines}\nTotal: ${clp(order.total)}\nPago vía: ${order.plataformaPago}`;
+}
+function renderMisPedidos(client){
+  if(!client) return "<div class='panel'>Debes iniciar sesión como cliente.</div>";
+  const myOrders = state.orders.filter(o=>o.clienteId===client.id);
+  if(myOrders.length===0) return "<div class='panel'><div class='empty'>Todavía no tienes compras registradas.</div></div>";
+
+  return `<div class="panel"><h2>Mis compras</h2>
+    <table>
+      <thead><tr><th>Boleta</th><th>Fecha</th><th>Items</th><th>Total</th><th>Estado</th><th></th></tr></thead>
+      <tbody>
+        ${myOrders.map(o=>`
+          <tr>
+            <td>${o.boleta}</td>
+            <td>${new Date(o.fecha).toLocaleString("es-CL")}</td>
+            <td>${o.items.reduce((s,i)=>s+i.cantidad,0)} u.</td>
+            <td>${clp(o.total)}</td>
+            <td>${statusBadge(o.estado)}</td>
+            <td>${o.estado==="Pagado" ? `<button class="btn small danger" data-cancelorder="${o.id}">Anular compra</button>` : ""}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+    <div class="divider"></div>
+    <h3>Última boleta digital</h3>
+    ${renderReceipt(myOrders[0], client)}
+  </div>`;
+}
+
+function statusBadge(estado){
+  const map = {"Pagado":"pend","En despacho":"disp","Entregado":"entregado","Anulado":"anulado","Pendiente":"pend"};
+  const cls = map[estado] || "pend";
+  return `<span class="badge ${cls}">${estado}</span>`;
+}
+
+function renderReceipt(order, client){
+  return `<div class="receipt">
+    <h4>Craft and Beer</h4>
+    <div class="small-note">Boleta digital ${order.boleta}</div>
+    <hr>
+    ${order.items.map(i=>`<div class="rline"><span>${i.cantidad}× ${escapeHtml(i.nombre)} (${i.formato})</span><span>${clp(i.precioUnit*i.cantidad)}</span></div>`).join("")}
+    <hr>
+    <div class="rline"><strong>Total</strong><strong>${clp(order.total)}</strong></div>
+    <div class="rline"><span>Pago</span><span>${order.plataformaPago}</span></div>
+    <div class="rline"><span>Enviada a</span><span>${escapeHtml(client.email)}</span></div>
+  </div>`;
+}
+
+function attachMisPedidosHandlers(){
+  document.querySelectorAll("[data-cancelorder]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      openCancelPrompt(btn.dataset.cancelorder);
+    });
+  });
+}
+function openCancelPrompt(orderId){
+  const reason = window.prompt("Indica el motivo de la anulación de tu compra:");
+  if(reason === null) return;
+  if(!reason.trim()){ toast("Debes indicar un motivo para anular."); return; }
+  const order = state.orders.find(o=>o.id===orderId);
+  if(!order) return;
+  if(order.estado !== "Pagado"){ toast("Esta compra ya no puede anularse."); return; }
+  order.estado = "Anulado";
+  order.motivoAnulacion = reason.trim();
+  order.items.forEach(i=>{
+    const p = state.products.find(x=>x.id===i.productId);
+    if(p) p.stock += i.cantidad;
+  });
+  saveState();
+  render();
+  toast("Compra anulada. Motivo registrado.");
+}
+function renderMiCuenta(client){
+  if(!client) return "<div class='panel'>Debes iniciar sesión como cliente.</div>";
+  return `<div class="panel">
+    <h2>Mi cuenta</h2>
+    <div class="grid-2">
+      <div><label>Nombre</label><input value="${escapeHtml(client.nombre)}" disabled></div>
+      <div><label>RUN</label><input value="${escapeHtml(client.run)}" disabled></div>
+      <div><label>Correo</label><input value="${escapeHtml(client.email)}" disabled></div>
+      <div><label>Teléfono</label><input value="${escapeHtml(client.telefono)}" disabled></div>
+      <div><label>Dirección</label><input value="${escapeHtml(client.direccion)}" disabled></div>
+      <div><label>Comuna / Región</label><input value="${escapeHtml(client.comuna)} / ${escapeHtml(client.region)}" disabled></div>
+    </div>
+    <p class="hint">Correo verificado: ${client.emailVerificado ? "sí" : "no"}. Para actualizar tus datos, contacta al administrador del local.</p>
+  </div>`;
+}
+function renderAdminProductos(user){
+  return `
+  <div class="panel">
+    <h2>Mantenedor de productos</h2>
+    <table>
+      <thead><tr><th>Producto</th><th>Estilo</th><th>Formato</th><th>Precio</th><th>Stock</th><th></th></tr></thead>
+      <tbody>
+        ${state.products.map(p=>`
+          <tr>
+            <td>${escapeHtml(p.name)}</td>
+            <td>${escapeHtml(p.style)}</td>
+            <td>${p.format}</td>
+            <td><input type="number" min="0" value="${p.price}" data-editprice="${p.id}" style="width:100px;"></td>
+            <td><input type="number" min="0" value="${p.stock}" data-editstock="${p.id}" style="width:80px;"></td>
+            <td><button class="btn small" data-saveproduct="${p.id}">Guardar</button></td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  </div>
+  <div class="panel">
+    <h3>Agregar nuevo producto</h3>
+    <form id="newProductForm">
+      <div class="grid-3">
+        <div><label>Nombre</label><input name="name" required></div>
+        <div><label>Estilo</label><input name="style" required placeholder="IPA, Stout, Lager..."></div>
+        <div><label>Formato</label><input name="format" required placeholder="Botella 330ml / Growler 1L"></div>
+      </div>
+      <div class="grid-3">
+        <div><label>Grado alcohólico (%)</label><input type="number" step="0.1" name="abv" required></div>
+        <div><label>Precio (CLP)</label><input type="number" name="price" required></div>
+        <div><label>Stock inicial</label><input type="number" name="stock" required></div>
+      </div>
+      <button class="btn primary" type="submit" style="margin-top:14px;">Agregar producto</button>
+    </form>
+  </div>`;
+}
+
+function attachAdminProductosHandlers(){
+  document.querySelectorAll("[data-saveproduct]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const id = btn.dataset.saveproduct;
+      const p = state.products.find(x=>x.id===id);
+      const price = document.querySelector(`[data-editprice="${id}"]`).value;
+      const stock = document.querySelector(`[data-editstock="${id}"]`).value;
+      p.price = Math.max(0, Number(price)||0);
+      p.stock = Math.max(0, Number(stock)||0);
+      saveState();
+      toast("Producto actualizado: " + p.name);
+    });
+  });
+  const newProductForm = document.getElementById("newProductForm");
+  if(newProductForm){
+    newProductForm.addEventListener("submit", e=>{
+      e.preventDefault();
+      const f = e.target;
+      const palette = ["#c9791f","#d9a441","#4a3324","#a5451f","#e8c873","#7a8f4a"];
+      state.products.push({
+        id: uid("P"), name:f.name.value.trim(), style:f.style.value.trim(), format:f.format.value.trim(),
+        abv:Number(f.abv.value), price:Number(f.price.value), stock:Number(f.stock.value),
+        swatch: palette[state.products.length % palette.length]
+      });
+      saveState();
+      render();
+      toast("Producto agregado al catálogo.");
+    });
+  }
+}
+function renderAdminClientes(user){
+  return `
+  <div class="panel">
+    <h2>Mantenedor de clientes</h2>
+    <table>
+      <thead><tr><th>Nombre</th><th>RUN</th><th>Correo</th><th>Comuna</th><th>Verificado</th></tr></thead>
+      <tbody>
+        ${state.clients.map(c=>`
+          <tr>
+            <td>${escapeHtml(c.nombre)}</td>
+            <td>${escapeHtml(c.run)}</td>
+            <td>${escapeHtml(c.email)}</td>
+            <td>${escapeHtml(c.comuna)}</td>
+            <td>${c.emailVerificado ? "Sí" : "No"}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  </div>
+  <div class="panel">
+    <h3>Registrar cliente desde el local</h3>
+    ${renderClientRegisterForm("adminRegisterForm")}
+  </div>`;
+}
+
+function attachAdminClientesHandlers(){
+  const form = document.getElementById("adminRegisterForm");
+  if(form){
+    form.addEventListener("submit", e=>{
+      e.preventDefault();
+      const f = e.target;
+      const errorBox = document.getElementById("adminRegisterFormError");
+      errorBox.textContent = "";
+      const email = f.email.value.trim();
+      if(!looksLikeValidEmail(email)){ errorBox.textContent = "Ingresa un correo electrónico válido."; return; }
+      if(state.clients.some(c=>c.email.toLowerCase()===email.toLowerCase())){
+        errorBox.textContent = "Ya existe un cliente con ese correo."; return;
+      }
+      const [comuna, region] = f.comunaRegion.value.split("|");
+      const client = {
+        id: uid("C"), run:f.run.value.trim(), nombre:f.nombre.value.trim(), direccion:f.direccion.value.trim(),
+        comuna, provincia:comuna, region, fnac:f.fnac.value, sexo:f.sexo.value, email,
+        emailVerificado:true, telefono:f.telefono.value.trim()
+      };
+      state.clients.push(client);
+      sendSimulatedEmail(email, "Verifica tu correo — Craft and Beer", "Tu cuenta fue creada desde el local y tu correo fue validado.");
+      saveState();
+      render();
+      toast("Cliente registrado y correo validado.");
+    });
+  }
+}
+function renderAdminUsuarios(user){
+  return `
+  <div class="panel">
+    <h2>Mantenedor de usuarios</h2>
+    <table>
+      <thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th></tr></thead>
+      <tbody>
+        ${state.users.map(u=>`<tr><td>${u.username}</td><td>${escapeHtml(u.nombre)}</td><td>${u.rol}</td></tr>`).join("")}
+      </tbody>
+    </table>
+  </div>
+  <div class="panel">
+    <h3>Crear usuario</h3>
+    <form id="newUserForm">
+      <div class="grid-2">
+        <div><label>Usuario</label><input name="username" required></div>
+        <div><label>Contraseña</label><input name="password" required></div>
+      </div>
+      <div class="grid-2">
+        <div><label>Nombre</label><input name="nombre" required></div>
+        <div><label>Rol</label>
+          <select name="rol" required>
+            <option>Administrador</option>
+            <option>Cajero Virtual</option>
+            <option>Encargado de Despacho</option>
+            <option>Dueño</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn primary" type="submit" style="margin-top:14px;">Crear usuario</button>
+    </form>
+  </div>`;
+}
+
+function attachAdminUsuariosHandlers(){
+  const form = document.getElementById("newUserForm");
+  if(form){
+    form.addEventListener("submit", e=>{
+      e.preventDefault();
+      const f = e.target;
+      if(state.users.some(u=>u.username===f.username.value.trim())){
+        toast("Ese nombre de usuario ya existe."); return;
+      }
+      state.users.push({id:uid("U"), username:f.username.value.trim(), password:f.password.value, rol:f.rol.value, nombre:f.nombre.value.trim()});
+      saveState();
+      render();
+      toast("Usuario creado.");
+    });
+  }
+}
+function renderAdminAnulaciones(user){
+  const cancellable = state.orders.filter(o=>o.estado==="Pagado" || o.estado==="En despacho");
+  return `<div class="panel">
+    <h2>Anular compras de clientes</h2>
+    ${cancellable.length===0 ? "<div class='empty'>No hay compras anulables en este momento.</div>" : `
+    <table>
+      <thead><tr><th>Boleta</th><th>Cliente</th><th>Total</th><th>Estado</th><th></th></tr></thead>
+      <tbody>
+        ${cancellable.map(o=>{
+          const c = state.clients.find(x=>x.id===o.clienteId);
+          return `<tr>
+            <td>${o.boleta}</td><td>${c?escapeHtml(c.nombre):"—"}</td><td>${clp(o.total)}</td><td>${statusBadge(o.estado)}</td>
+            <td><button class="btn small danger" data-adminacancel="${o.id}">Anular</button></td>
+          </tr>`;
+        }).join("")}
+      </tbody>
+    </table>`}
+  </div>`;
+}
+function attachAdminAnulacionesHandlers(){
+  document.querySelectorAll("[data-adminacancel]").forEach(btn=>{
+    btn.addEventListener("click", ()=>openCancelPrompt(btn.dataset.adminacancel));
+  });
+}
+function renderCajero(user){
+  const pending = state.orders.filter(o=>o.estado==="Pagado");
+  return `<div class="panel">
+    <h2>Caja virtual — ventas del turno web</h2>
+    <p class="small-note">Estas ventas quedan asociadas a tu caja de cajero virtual y ya generaron su boleta digital automáticamente al confirmarse el pago externo.</p>
+    ${pending.length===0 ? "<div class='empty'>No hay ventas pendientes de despacho por asignar todavía.</div>" : `
+    <table>
+      <thead><tr><th>Boleta</th><th>Cliente</th><th>Fecha</th><th>Total</th><th>Pago</th><th>Estado</th></tr></thead>
+      <tbody>
+        ${pending.map(o=>{
+          const c = state.clients.find(x=>x.id===o.clienteId);
+          return `<tr>
+            <td>${o.boleta}</td><td>${c?escapeHtml(c.nombre):"—"}</td>
+            <td>${new Date(o.fecha).toLocaleString("es-CL")}</td>
+            <td>${clp(o.total)}</td><td>${o.plataformaPago}</td><td>${statusBadge(o.estado)}</td>
+          </tr>`;
+        }).join("")}
+      </tbody>
+    </table>`}
+  </div>
+  <div class="panel">
+    <h3>Historial completo de ventas</h3>
+    <table>
+      <thead><tr><th>Boleta</th><th>Total</th><th>Estado</th></tr></thead>
+      <tbody>
+        ${state.orders.map(o=>`<tr><td>${o.boleta}</td><td>${clp(o.total)}</td><td>${statusBadge(o.estado)}</td></tr>`).join("")}
+      </tbody>
+    </table>
+  </div>`;
+}
+function renderDespacho(user){
+  const toDispatch = state.orders.filter(o=>o.estado==="Pagado").sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
+  const inRoute = state.orders.filter(o=>o.estado==="En despacho");
+  return `
+  <div class="panel">
+    <h2>Órdenes por preparar (orden de llegada)</h2>
+    ${toDispatch.length===0 ? "<div class='empty'>No hay pedidos pendientes de despacho.</div>" : `
+    <table>
+      <thead><tr><th>Boleta</th><th>Cliente</th><th>Dirección</th><th>Items</th><th></th></tr></thead>
+      <tbody>
+        ${toDispatch.map(o=>{
+          const c = state.clients.find(x=>x.id===o.clienteId);
+          return `<tr>
+            <td>${o.boleta}</td><td>${c?escapeHtml(c.nombre):"—"}</td><td>${escapeHtml(o.direccionDespacho)}</td>
+            <td>${o.items.reduce((s,i)=>s+i.cantidad,0)} u.</td>
+            <td>
+              <button class="btn small" data-printorder="${o.id}">Imprimir orden</button>
+              <button class="btn small primary" data-dispatchorder="${o.id}">Marcar en ruta</button>
+            </td>
+          </tr>`;
+        }).join("")}
+      </tbody>
+    </table>`}
+  </div>
+  <div class="panel">
+    <h3>En ruta</h3>
+    ${inRoute.length===0 ? "<div class='empty'>No hay pedidos en ruta.</div>" : `
+    <table>
+      <thead><tr><th>Boleta</th><th>Dirección</th><th></th></tr></thead>
+      <tbody>
+        ${inRoute.map(o=>`<tr><td>${o.boleta}</td><td>${escapeHtml(o.direccionDespacho)}</td>
+          <td><button class="btn small" data-deliverorder="${o.id}">Marcar entregado</button></td></tr>`).join("")}
+      </tbody>
+    </table>`}
+  </div>`;
+}
+
+function attachDespachoHandlers(){
+  document.querySelectorAll("[data-printorder]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const o = state.orders.find(x=>x.id===btn.dataset.printorder);
+      const c = state.clients.find(x=>x.id===o.clienteId);
+      const w = window.open("", "_blank", "width=380,height=560");
+      if(!w){ toast("Habilita las ventanas emergentes para imprimir."); return; }
+      w.document.write(`<pre style="font-family:monospace;padding:16px;">ORDEN DE DESPACHO
+Boleta: ${o.boleta}
+Cliente: ${c.nombre}
+Dirección: ${o.direccionDespacho}
+------------------------------
+${o.items.map(i=>i.cantidad+" x "+i.nombre+" ("+i.formato+")").join("\n")}
+------------------------------
+Total: ${clp(o.total)}
+</pre>`);
+      w.document.close();
+      w.print();
+    });
+  });
+  document.querySelectorAll("[data-dispatchorder]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const o = state.orders.find(x=>x.id===btn.dataset.dispatchorder);
+      o.estado = "En despacho";
+      saveState(); render();
+      toast("Pedido " + o.boleta + " marcado en ruta.");
+    });
+  });
+  document.querySelectorAll("[data-deliverorder]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const o = state.orders.find(x=>x.id===btn.dataset.deliverorder);
+      o.estado = "Entregado";
+      saveState(); render();
+      toast("Pedido " + o.boleta + " entregado.");
+    });
+  });
+}
+function renderReportes(user){
+  const today = todayISO();
+  const defaultFrom = new Date(Date.now()-30*86400000).toISOString().slice(0,10);
+  return `<div class="panel">
+    <h2>Reporte de ventas</h2>
+    <div class="grid-3">
+      <div><label>Desde</label><input type="date" id="repFrom" value="${defaultFrom}"></div>
+      <div><label>Hasta</label><input type="date" id="repTo" value="${today}"></div>
+      <div style="display:flex; align-items:flex-end;"><button class="btn primary" id="repRun" style="width:100%;">Generar reporte</button></div>
+    </div>
+    <div id="repResult" style="margin-top:18px;"></div>
+  </div>`;
+}
+function attachReportesHandlers(){
+  const btn = document.getElementById("repRun");
+  if(!btn) return;
+  const run = ()=>{
+    const from = document.getElementById("repFrom").value;
+    const to = document.getElementById("repTo").value;
+    const fromD = from ? new Date(from+"T00:00:00") : null;
+    const toD = to ? new Date(to+"T23:59:59") : null;
+    const filtered = state.orders.filter(o=>{
+      if(o.estado==="Anulado") return false;
+      const d = new Date(o.fecha);
+      if(fromD && d<fromD) return false;
+      if(toD && d>toD) return false;
+      return true;
+    });
+    const total = filtered.reduce((s,o)=>s+o.total,0);
+    const unidades = filtered.reduce((s,o)=>s+o.items.reduce((a,i)=>a+i.cantidad,0),0);
+    const byProduct = {};
+    filtered.forEach(o=>o.items.forEach(i=>{ byProduct[i.nombre]=(byProduct[i.nombre]||0)+i.cantidad; }));
+    const rows = Object.entries(byProduct).sort((a,b)=>b[1]-a[1]);
+    document.getElementById("repResult").innerHTML = `
+      <div class="grid-3" style="margin-bottom:16px;">
+        <div class="panel" style="margin-bottom:0;"><h3>Ventas</h3><div style="font-family:'Fraunces',serif; font-size:1.4rem;">${filtered.length}</div></div>
+        <div class="panel" style="margin-bottom:0;"><h3>Unidades</h3><div style="font-family:'Fraunces',serif; font-size:1.4rem;">${unidades}</div></div>
+        <div class="panel" style="margin-bottom:0;"><h3>Ingresos</h3><div style="font-family:'Fraunces',serif; font-size:1.4rem;">${clp(total)}</div></div>
+      </div>
+      <h3>Ventas por producto</h3>
+      <table><thead><tr><th>Producto</th><th>Unidades vendidas</th></tr></thead>
+      <tbody>${rows.length? rows.map(([n,q])=>`<tr><td>${escapeHtml(n)}</td><td>${q}</td></tr>`).join("") : "<tr><td colspan=2>Sin ventas en el período.</td></tr>"}</tbody></table>
+    `;
+  };
+  btn.addEventListener("click", run);
+  run();
+}
+function attachAppHandlers(){
+  document.getElementById("logoutBtn").addEventListener("click", ()=>{
+    state.session = null;
+    saveState();
+    render();
+  });
+  document.querySelectorAll("[data-view]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{ currentView = btn.dataset.view; render(); });
+  });
+
+  document.querySelectorAll("[data-qtychg]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const id = btn.dataset.qtychg;
+      const input = document.querySelector(`[data-qtyinput="${id}"]`);
+      let v = Number(input.value)||0;
+      v = Math.max(0, Math.min(Number(input.max), v + Number(btn.dataset.delta)));
+      input.value = v;
+    });
+  });
+  document.querySelectorAll("[data-addcart]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const id = btn.dataset.addcart;
+      const input = document.querySelector(`[data-qtyinput="${id}"]`);
+      const qty = Number(input.value)||0;
+      if(qty<=0){ toast("Indica una cantidad mayor a 0."); return; }
+      state.cart[id] = qty;
+      saveState();
+      toast("Agregado a tu pedido.");
+    });
+  });
+  document.querySelectorAll("[data-removecart]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      delete state.cart[btn.dataset.removecart];
+      saveState(); render();
+    });
+  });
+
+  attachCarritoHandlers();
+  attachMisPedidosHandlers();
+  attachAdminProductosHandlers();
+  attachAdminClientesHandlers();
+  attachAdminUsuariosHandlers();
+  attachAdminAnulacionesHandlers();
+  attachDespachoHandlers();
+  attachReportesHandlers();
+}
+
+render();
+</script>
+</body>
+</html>
